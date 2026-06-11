@@ -1,0 +1,13 @@
+BuildRules*
+.cache*
+
+build/
+bin/
+obj/
+
+compile_commands*
+compile_flags*
+*.raddbg
+*.gf
+*.log
+*reconstructed.*
