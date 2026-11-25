@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [[ -f "./vendor/puddle/clean" ]]
+then
+    pushd "./vendor/puddle/" > /dev/null
+    ./clean
+    popd > /dev/null
+fi
+
+echo -e "\033[33mcleaning up vertstream builds...\033[0m"
+
+if [[ -d ./bin/ ]]
+then
+    rm ./bin/ -rf
+fi
+
+if [[ -f ./a.out ]]
+then
+    rm ./a.out
+fi
+
+for file in *.o
+do
+    if [[ ! -f $file ]]
+    then
+        continue;
+    fi
+
+    rm $file
+done
+
+pushd ./assets/ > /dev/null
+for written in *reconstructed*
+do
+    if [[ ! -f $written ]]
+    then
+        continue;
+    fi
+
+    rm $written
+done
+popd > /dev/null
+
+echo -e "\033[32mcleaned vertstream!\n\033[0m"
