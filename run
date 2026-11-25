@@ -1,0 +1,113 @@
+#!/bin/bash
+
+if [[ ! -d "./bin/" ]]
+then
+    mkdir ./bin/
+fi
+
+if [[ $1 = "" ]]
+then
+    build="release"
+else
+    build=$1
+fi
+
+args_always="-DBUILD_LINUX \
+-std=gnu99 \
+-Iinclude/ \
+-Ivendor/puddle/include/ \
+src/vertstream_test.c \
+vendor/puddle/src/pd_string_view.c \
+vendor/puddle/src/linux_pd_path.c \
+-Wextra -Wall -Wpedantic -Wconversion -Wshadow -Wsign-compare -Wtype-limits -Wunused \
+-fuse-ld=mold"
+
+args_release="-O2"
+
+args_debug="-DDEBUG -DVS_PRI_DEBUG -g -O0"
+
+args_asan="$args_debug -DASAN \
+-fsanitize=address,leak,undefined \
+-fno-omit-frame-pointer \
+-static-libasan"
+
+args_trace="$args_debug -DVS_PRI_TRACE"
+
+function compile()
+{
+    echo "identifying a compiler..."
+
+    clang --version > /dev/null
+    if [[ $? = 0 ]]
+    then
+        echo "found clang."
+        compiler="clang"
+    else
+        gcc --version > /dev/null
+        if [[ $? = 0 ]]
+        then
+            compiler="gcc"
+        else
+            echo -e "\033[31m\nERROR: no suitable compiler found.\n\033[0m"
+        fi
+    fi
+
+    echo ""
+    echo -e "\033[36mcompiling vertstream...\033[0m"
+    echo ""
+
+    if [[ ! -d ./bin/$build ]]
+    then
+        mkdir ./bin/$build
+    fi
+
+    echo "compiling $build build with the following command:"
+    echo "$compiler $1"
+    $compiler $1
+    if [[ $? != 0 ]]
+    then
+        echo -e "\033[31m\nERROR: $compiler failed to compile vertstream.\n\033[0m"
+        exit -1
+    fi
+    mv ./a.out ./bin/$build/vertstreamtest
+}
+
+if [[ $2 = "--compile-only" ]]
+then
+    arch=$3
+else
+    arch=$2
+fi
+
+if [[ $build = "release" ]]
+then
+    compile "$args_always $args_release -march=$arch"
+else
+if [[ $build = "debug" ]]
+then
+    compile "$args_always $args_debug -march=$arch"
+else
+if [[ $build = "asan" ]]
+then
+    compile "$args_always $args_asan -march=$arch"
+else
+if [[ $build = "trace" ]]
+then
+    compile "$args_always $args_trace -march=$arch"
+else
+    echo -e "\033[31m\nERROR: invalid make config: $build.\033[0m"
+    exit 3;
+fi
+fi
+fi
+fi
+
+echo -e "\n"
+
+if [[ $2 = "--compile-only" ]] || [[ $3 = "--compile-only" ]]
+then
+    exit 0
+fi
+
+chmod +x ./bin/$build/vertstreamtest
+./bin/$build/vertstreamtest
