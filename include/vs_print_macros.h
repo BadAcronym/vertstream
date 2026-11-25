@@ -35,24 +35,24 @@
 #define SELECT_21ST(a1,  a2,  a3,  a4,  a5,  a6,  a7,  a8,  a9,  a10,               \
                     a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, ...) a21 \
 
-#define PD_ERROR(...) \
+#define VS_ERROR(...) \
         fprintf(stderr, "\n\033[31;1m" __LOCATION__ "\033[31;1;7m\nERROR: " \
                 FIRST(__VA_ARGS__) "\033[0m\n" REST(__VA_ARGS__))
 
-#define PD_FAIL(...) \
+#define VS_FAIL(...) \
         fprintf(stderr, "\n\033[31;1m" __LOCATION__ "\033[31;1;7m\nFAIL: " \
                 FIRST(__VA_ARGS__) "\033[0m\n" REST(__VA_ARGS__))
 
-#define PD_SUCCESS(...) \
+#define VS_SUCCESS(...) \
         fprintf(stdout, "\033[32;1;1mSUCCESS: " \
                 FIRST(__VA_ARGS__) "\033[0m\n" REST(__VA_ARGS__))
 
-#define PD_WARN(...) \
+#define VS_WARN(...) \
         fprintf(stdout, "\033[33;1m" __LOCATION__ "\n\033[33;1;7mWARNING: " \
                 FIRST(__VA_ARGS__) "\033[0m\n" REST(__VA_ARGS__))
 
-#ifdef PD_PRI_DEBUG
-    #define PD_ASSERT(condition, ...)                               \
+#ifdef VS_PRI_DEBUG
+    #define VS_ASSERT(condition, ...)                               \
     do                                                              \
     {                                                               \
         if(condition)                                               \
@@ -66,18 +66,18 @@
     }                                                               \
     while(0);
 
-    #define PD_DEBUG(...) \
+    #define VS_DEBUG(...) \
             printf(FIRST(__VA_ARGS__) "\n" REST(__VA_ARGS__))
 #else
-    #define PD_ASSERT(...)
-    #define PD_DEBUG(...)
+    #define VS_ASSERT(...)
+    #define VS_DEBUG(...)
 #endif
 
-#ifdef PD_PRI_TRACE
-    #define PD_TRACE(...) \
+#ifdef VS_PRI_TRACE
+    #define VS_TRACE(...) \
             printf(FIRST(__VA_ARGS__) "\n" REST(__VA_ARGS__))
 #else
-    #define PD_TRACE(...)
+    #define VS_TRACE(...)
 #endif
 
 #endif
