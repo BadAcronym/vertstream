@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./clean
+./run debug --compile-only
+
+raddbg ./bin/debug/vertstreamtest
