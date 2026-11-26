@@ -9,7 +9,6 @@ int main
     u08 failed = 0;
 
     VSModel vase = vsReadModel("assets/WB_Vase.obj");
-
     vsFreeModel(&vase);
 
     return failed;

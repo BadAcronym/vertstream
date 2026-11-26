@@ -8,7 +8,7 @@
 #define f_internal   static
 #define v_persistent static
 
-#define VS_OBJ_LINE_BUFSIZE 4096
+#define VS_OBJ_LINE_BUFSIZE 64
 
 typedef struct VSVertex
 {
