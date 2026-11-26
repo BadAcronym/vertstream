@@ -10,13 +10,38 @@
 
 #define VS_OBJ_LINE_BUFSIZE 4096
 
+typedef struct VSVertex
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+}
+VSVertex;
+
+typedef struct VSTriple
+{
+    f32 x;
+    f32 y;
+    f32 z;
+}
+VSTriple;
+
+typedef struct VSIndex
+{
+    u32 first;
+    u32 second;
+    u32 third;
+}
+VSIndex;
+
 typedef struct VSMesh
 {
-    f32 *vertices[4];
-    f32 *spaces[3];
-    u32 *indices[3];
-    f32 *texCoords[3];
-    f32 *normals[3];
+    VSVertex *vertices;
+    VSTriple *spaces;
+    VSIndex  *indices;
+    VSTriple *texCoords;
+    VSTriple *normals;
 }
 VSMesh;
 
@@ -27,9 +52,19 @@ typedef struct VSModel
 }
 VSModel;
 
-extern VSModel vsReadObj
+extern VSModel vsReadModel
 (
     const char *filepath
+);
+
+extern VSModel vsReadObj
+(
+    StringView data
+);
+
+extern void vsFreeModel
+(
+    VSModel *model
 );
 
 #endif

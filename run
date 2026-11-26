@@ -17,6 +17,7 @@ args_always="-DBUILD_LINUX \
 -Iinclude/ \
 -Ivendor/puddle/include/ \
 src/vertstream_test.c \
+src/vertstream_main.c \
 src/vertstream_obj.c \
 vendor/puddle/src/pd_string_view.c \
 vendor/puddle/src/linux_pd_path.c \

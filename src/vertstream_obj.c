@@ -12,11 +12,9 @@ s_global StringView texCoordIdent = { .data = "vt", .size = 2 };
 
 VSModel vsReadObj
 (
-    const char *filepath
+    StringView data
 ){
     VSModel obj = {0};
-
-    StringView objData = pdSVReadFile(filepath);
 
     char lineBuf[VS_OBJ_LINE_BUFSIZE];
 
@@ -32,7 +30,7 @@ VSModel vsReadObj
     u32 faceCount     = 0;
 
     u64 cursor = 0;
-    while(pdSVReadLine(objData, &cursor, &line))
+    while(pdSVReadLine(data, &cursor, &line))
     {
         StringView ident;
         ident.data = line.data;
