@@ -1,6 +1,8 @@
 BuildRules*
 .cache*
 
+callgrind*
+
 build/
 bin/
 obj/
