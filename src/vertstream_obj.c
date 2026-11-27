@@ -12,28 +12,81 @@ s_global StringView spaceIdent    = { .data = "vp", .size = 2 };
 s_global StringView normalIdent   = { .data = "vn", .size = 2 };
 s_global StringView texCoordIdent = { .data = "vt", .size = 2 };
 
-f_internal void readVertex
+f_internal inline f32 readCoordinate
+(
+    u08    *cursor,
+    String *line
+){
+    f32 coord = 0.0f;
+    bool coordNegative = false;
+
+    if(line->data[*cursor] == '-')
+    {
+        coordNegative = true;
+        ++(*cursor);
+    }
+
+    if(line->data[*cursor] == '1')
+    {
+        coord += 1.0f;
+    }
+
+    *(cursor) += 2;
+    float div = 1.0f;
+
+    for(u08 i = 1; *cursor < line->size; ++(*cursor), ++i)
+    {
+        if(line->data[*cursor] == ' ')
+        {
+            break;
+        }
+
+        div *= 10.0f;
+
+        // PERF: feels very inefficient. can't we just set the bits of the mantissa,
+        // since we know the exponent is 0? (is it even 0 or 1?)
+        // then we also don't have the need for xNegative and the deferred mult
+        u08 digit = (u08)(line->data[*cursor]) - 0x30;
+        coord += (f32)digit / (div);
+    }
+
+    if(coordNegative)
+    {
+        coord *= -1.0f;
+    }
+
+    ++(*cursor);
+    return coord;
+}
+
+f_internal inline void readVertex
 (
     VSMesh *mesh,
     String line
 ){
-    line.data += 2;
-    line.size += 2;
-
-    VSVertex vertex;
-
-    // TODO: parse vertex line, for now push null
-    vertex.x = 0.0f;
-    vertex.y = 0.0f;
-    vertex.z = 0.0f;
+    VSVertex vertex = {0};
     vertex.w = 1.0f;
 
-    // read remaining vertex line:
-    // -0.126478 0.021482 0.208659
+    u08 cursor = 2;
+    vertex.x = readCoordinate(&cursor, &line);
+    vertex.y = readCoordinate(&cursor, &line);
+    vertex.z = readCoordinate(&cursor, &line);
+
+    if(cursor < line.size)
+    {
+        vertex.w = readCoordinate(&cursor, &line);
+    }
+
+    VS_TRACE("read vertex: %f, %f, %f, %f", vertex.x, vertex.y, vertex.z, vertex.w);
 
     pdArrPush(mesh->vertices, vertex);
 }
 
+// PERF: think about parallelization. we should probably not dispatch a worker per-line.
+// If none of the data needs to be ordered, we can simply dispatch a worker to work on n
+// lines in parallel.
+// obviously test around, especially with huge files that have an unnecessary amount of
+// polygons.
 VSModel vsReadObj
 (
     StringView data
@@ -53,7 +106,7 @@ VSModel vsReadObj
     u32 lineCount     = 0;
     u32 faceCount     = 0;
 
-    // NOTE: how many meshes can be in a .obj file?
+    // NOTE: how many meshes can be in an .obj file?
     VSMesh mesh = {0};
 
     u64 cursor = 0;
